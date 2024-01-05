@@ -1,0 +1,16 @@
+
+11/17/21-17:11:31[  1]@@@@@ Logging started for K:/LD/TowardsAnUrbanPreview_cal21/log/SSP1_Builtupareakm2_Y2010.txt at 11/17/21 - 17:11:31
+11/17/21-17:11:31[  1]Read  fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/17/21-17:11:31[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-17:11:31[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-17:11:31[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-17:11:31[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-17:11:31[  1]Obsolete function called, use EXEC_EC instead that return an errorcode as parameter<UInt32>
+11/17/21-17:11:31[  1]{ Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\export_scen\Modelled.dms(154,5): /Scenarios/SSPs/SSP1/Export/Modelled/Builtupareakm2/Y2010: DataItem<Float32>
+11/17/21-17:11:31[  1]   exec_ec: C:/windows/system32/cmd.exe /c SubWCRev K:\PD\TowardsAnUrbanPreview_cal21 > K:\PD\TowardsAnUrbanPreview_cal21\SubWCRevData.str
+11/17/21-17:13:24[  1]   K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\export_scen\Modelled.dms(154,5): /Scenarios/SSPs/SSP1/Export/Modelled/Builtupareakm2/Y2010: DataItem<Float32> IS STORED IN K:/LD/TowardsAnUrbanPreview_cal21/results/LatLong_World/M3var1_SSP1_2010_buakm2.tif
+11/17/21-17:13:41[  1]} Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\export_scen\Modelled.dms(154,5): /Scenarios/SSPs/SSP1/Export/Modelled/Builtupareakm2/Y2010: DataItem<Float32> (130.217 secs)
+11/17/21-17:13:41[  1]{ K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream
+11/17/21-17:13:41[  1]   Write fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/17/21-17:13:41[  1]} K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream (0 secs)
+11/17/21-17:13:41[  1]@@@@@ Logging ended for K:/LD/TowardsAnUrbanPreview_cal21/log/SSP1_Builtupareakm2_Y2010.txt at 11/17/21 - 17:13:41

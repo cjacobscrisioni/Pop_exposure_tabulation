@@ -1,0 +1,32 @@
+
+11/17/21-22:33:19[  1]@@@@@ Logging started for K:/LD/TowardsAnUrbanPreview_cal21/log/SSP1_Builtuparea_Y2090.txt at 11/17/21 - 22:33:19
+11/17/21-22:33:19[  1]Read  fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSP/name.1.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2010/Iter/name.2.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2010/Iter/name.2.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2020/Iter/name.1cc.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2020/Iter/name.1cc.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2030/Iter/name.2b5.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2030/Iter/name.2b5.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2040/Iter/name.39e.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2040/Iter/name.39e.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2050/Iter/name.487.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2050/Iter/name.487.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2060/Iter/name.570.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2060/Iter/name.570.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2070/Iter/name.659.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2070/Iter/name.659.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Create File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2080/Iter/name.742.dmsdata
+11/17/21-22:33:19[  1]: DataItem<String>: Open   File K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318/Scenarios/SSPs/SSP1/ProjectionDates/Y2080/Iter/name.742.dmsdata
+11/17/21-22:33:19[  1]Obsolete function called, use EXEC_EC instead that return an errorcode as parameter<UInt32>
+11/17/21-22:33:19[  1]{ Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\export_scen\Modelled.dms(146,5): /Scenarios/SSPs/SSP1/Export/Modelled/Builtuparea/Y2090: DataItem<Float32>
+11/17/21-22:33:19[  1]   exec_ec: C:/windows/system32/cmd.exe /c SubWCRev K:\PD\TowardsAnUrbanPreview_cal21 > K:\PD\TowardsAnUrbanPreview_cal21\SubWCRevData.str
+11/17/21-22:34:51[  1]   K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\export_scen\Modelled.dms(146,5): /Scenarios/SSPs/SSP1/Export/Modelled/Builtuparea/Y2090: DataItem<Float32> IS STORED IN K:/LD/TowardsAnUrbanPreview_cal21/results/LatLong_World/M3var1_SSP1_2090_bua_fraction.tif
+11/17/21-22:35:08[  1]} Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\export_scen\Modelled.dms(146,5): /Scenarios/SSPs/SSP1/Export/Modelled/Builtuparea/Y2090: DataItem<Float32> (108.753 secs)
+11/17/21-22:35:08[  1]{ K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream
+11/17/21-22:35:08[  1]   Write fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/17/21-22:35:08[  1]} K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream (0 secs)
+11/17/21-22:35:08[  1]@@@@@ Logging ended for K:/LD/TowardsAnUrbanPreview_cal21/log/SSP1_Builtuparea_Y2090.txt at 11/17/21 - 22:35:08

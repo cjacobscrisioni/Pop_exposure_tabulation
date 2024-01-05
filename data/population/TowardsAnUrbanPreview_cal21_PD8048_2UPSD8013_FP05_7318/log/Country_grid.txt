@@ -1,0 +1,12 @@
+
+11/17/21-15:59:15[  1]@@@@@ Logging started for K:/LD/TowardsAnUrbanPreview_cal21/log/Country_grid.txt at 11/17/21 - 15:59:15
+11/17/21-15:59:15[  1]Read  fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/17/21-15:59:15[  1]Obsolete function called, use EXEC_EC instead that return an errorcode as parameter<UInt32>
+11/17/21-15:59:15[  1]{ Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\exportcountry.dms(13,5): /Scenarios/Export/Country_grid: DataItem<UInt8>
+11/17/21-15:59:15[  1]   exec_ec: C:/windows/system32/cmd.exe /c SubWCRev K:\PD\TowardsAnUrbanPreview_cal21 > K:\PD\TowardsAnUrbanPreview_cal21\SubWCRevData.str
+11/17/21-15:59:24[  1]   K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\exportcountry.dms(13,5): /Scenarios/Export/Country_grid: DataItem<UInt8> IS STORED IN K:/LD/TowardsAnUrbanPreview_cal21/results/LatLong_World/country.tif
+11/17/21-15:59:27[  1]} Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Scenarios\exportcountry.dms(13,5): /Scenarios/Export/Country_grid: DataItem<UInt8> (11.862 secs)
+11/17/21-15:59:27[  1]{ K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream
+11/17/21-15:59:27[  1]   Write fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/17/21-15:59:27[  1]} K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream (0 secs)
+11/17/21-15:59:27[  1]@@@@@ Logging ended for K:/LD/TowardsAnUrbanPreview_cal21/log/Country_grid.txt at 11/17/21 - 15:59:27

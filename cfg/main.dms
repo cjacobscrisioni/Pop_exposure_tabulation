@@ -1,0 +1,399 @@
+container worldbank_tabulation {
+	
+	unit<dpoint> w_mw:= range(Geography/Base, point(-18040095.7, -9020047.85), point(18040095.7, 9020047.85)), Descr = "Mollweide Global Projection",	Format = "EPSG:54009";
+	unit<dpoint> WGS84:= range(Geography/Base, point(-90.0, -180.0), point(90.0, 180.0)), Descr = "WGS 1984",	Format = "EPSG:4326";
+	unit<wpoint> target_grid:= population_data/observed/ghsl_2020 {
+		attribute<famine_data/fews_famines> fews_id:= poly2grid(famine_data/fews_famines/Geometry,.);
+	}
+	
+	unit<uint32> adm_units: nrofrows = 6 {attribute<string> LabelText:= 'adm_'+string(id(.));}
+	unit<uint32> p5s: NrOfRows = 20 {
+		attribute<string> LabelText:= 'pc'+string(5*(id(.)+1));
+		attribute<float32> sc_mobs14t21:=		ClassifyEqualCount(sel_countries/m_obs_14t21, p5s);
+		attribute<float32> sc_ipc3plus_pct:=	ClassifyEqualCount(famine_data/fews_famines/ipc3plus_percent, p5s);
+	}
+	
+	unit<uint32> degurba: NrOfRows = 3 {
+		attribute<uint8>   class_start: [0, 20, 30];
+		attribute<string>  LabelText: ['Rural', 'Towns and suburbs', 'Cities'];
+	}
+	
+	unit<uint32> sel_countries:= subset(IsDefined(Countries/m_obs_14t21)), Descr = "All countries for which food insecurity data is available (not FEWS but globally)" {
+		attribute<string> 	LabelText:= Countries/LabelText[Nr_Orgentity];
+		attribute<WGS84>  	Geometry (polygon):= Countries/Geometry[Nr_Orgentity];
+		attribute<float32>	m_obs_14t21:= Countries/m_obs_14t21[Nr_Orgentity];
+		attribute<p5s> 		p5_class:= classify(m_obs_14t21, p5s/sc_mobs14t21);
+		attribute<float32>	p2010_WDI:= float32(rjoin(Nr_Orgentity,population_data/observed/WDI_country_population/cntr_id, population_data/observed/WDI_country_population/y2010));
+	}
+	unit<uint32> regions:= famine_data/fews_zones;
+	
+	unit<uint32> countries:= gadm_adm_zones/adm_0 {
+		attribute<famine_data/severely_food_insecure_default_scenario> fi_id:= invert(/famine_data/severely_food_insecure_default_scenario/cntr_id);
+		attribute<string> LabelText:= gadm_adm_zones/adm_0/LabelText;
+		attribute<float32> m_obs_14t21:= famine_data/severely_food_insecure_default_scenario/m_obs_14t21[fi_id];
+		attribute<float32> hm_obs_14t21:= famine_data/severely_food_insecure_default_scenario/hm_obs_14t21[fi_id];
+		attribute<float32> gm_obs_14t21:= famine_data/severely_food_insecure_default_scenario/gm_obs_14t21[fi_id];
+		
+		attribute<uint32>  n_fews:= pcount(famine_data/fews_famines/cntr_id);
+		attribute<float32> pop2020:= sum(famine_data/fews_famines/pop2020, famine_data/fews_famines/cntr_id);
+		
+		// analysing ipcs 
+		attribute<float32>	exp_ipc3plus:= sum(famine_data/fews_famines/ipc3plus_exposure, famine_data/fews_famines/cntr_id) / pop2020;
+		//attribute<float32>	hm_exp_ipc3plus:= (pop2020 / sum(makedefined(famine_data/fews_famines/pop2020 / (famine_data/fews_famines/ipc3plus_notexposed), 0f), famine_data/fews_famines/cntr_id) / pop2020);
+		attribute<float32>	m_avg_ipc:= mean(famine_data/fews_famines/avg_ipc, famine_data/fews_famines/cntr_id);
+		attribute<float32>  pm_avg_ipc:= sum(famine_data/fews_famines/avg_ipc * famine_data/fews_famines/pop2020, famine_data/fews_famines/cntr_id) / sum(famine_data/fews_famines/pop2020, famine_data/fews_famines/cntr_id);
+		attribute<float32>	m_ipc3plus:= 1f - mean(famine_data/fews_famines/w_below_ipc3plus_percent, famine_data/fews_famines/cntr_id);
+		//attribute<float32>	hm_ipc3plus:= 1f - ((1f / mean(makedefined(1f / famine_data/fews_famines/below_ipc3plus_percent, 0f), famine_data/fews_famines/cntr_id)));
+		attribute<float32>	hm_ipc3plus:= 1f - ((1f / mean((1f / famine_data/fews_famines/w_below_ipc3plus_percent), famine_data/fews_famines/cntr_id)));
+		attribute<float64>	gm_ipc3plus:= 1d - (exp(sum(log(float64(famine_data/fews_famines/w_below_ipc3plus_percent)), famine_data/fews_famines/cntr_id))^(1d / float64(n_fews)));
+		//attribute<float32>	hm_ipc3plus:= (float32(pcount(famine_data/fews_famines/cntr_id)) / sum(famine_data/fews_famines/ipc3plus_percent, famine_data/fews_famines/cntr_id));
+		attribute<float32>	corr_ipc_3_ipc4p:= corr(float32(famine_data/fews_famines/ipc_3), float32(famine_data/fews_famines/ipc_4 + famine_data/fews_famines/ipc_5), famine_data/fews_famines/cntr_id);
+		attribute<bool>		ipc_events:= sum(famine_data/fews_famines/avg_ipc, famine_data/fews_famines/cntr_id) > 0f;
+		
+		// for joining degrees of urbanisation
+		attribute<uint32> 	smallest_admx_n:= ='argmax('+asItemList('nr_admx/'+adm_units/LabelText)+')';
+		
+		
+		container nr_admx:= for_each_nedv(adm_units/LabelText, 'pcount(gadm_adm_zones/'+adm_units/LabelText+'/cntr_id)', countries, uint32);
+		
+		/*unused
+			attribute<float32>	avg_prob_ipc_score:= mean(famine_data/fews_famines/prob_ipc_score, famine_data/fews_famines/cntr_id);
+			attribute<float32>	prob_ipc_75th_perc:= rth_element(famine_data/fews_famines/prob_ipc_score, 0.75f, famine_data/fews_famines/cntr_id);
+			attribute<bool>  	prob_ipc_events:= sum(famine_data/fews_famines/prob_ipc_score, famine_data/fews_famines/cntr_id) > 0f;
+			attribute<bool>		prob_ipc_75th_distinctive:= prob_ipc_75th_perc > rth_element(famine_data/fews_famines/prob_ipc_score, 0.25f, famine_data/fews_famines/cntr_id);
+		*/
+	}
+	
+	container Geography {
+		unit<dpoint>  Base: Format     = "EPSG:4326" {
+			parameter<float32> ViewPortMinSize: expr = "float32(100)	/ float32(3600 * 4)";
+			parameter<float32> PenWorldWidth: 	expr = "float32(1) 		/ float32(3600 * 4)", 	DialogType = "PenWorldWidth";
+			parameter<float32> SymbolWorldSize: expr = "float32(2)	 	/ float32(3600)",	DialogType = "SymbolWorldSize";
+			parameter<float32> LabelWorldSize: 	expr = "float32(10) 	/ float32(3600)",	DialogType = "LabelWorldSize";
+		}
+	}
+	container gadm_adm_zones: storagename = "%ProjDir%/data/admin_units/gadm_410-levels.gpkg", storagetype = "gdal.vect", storagereadonly = "true" {
+		unit<uint32> adm_0 {
+			attribute<WGS84> Geometry (poly);
+			attribute<string> LabelText:= country; 	attribute<countries> cntr_id:= rlookup(country, countries/LabelText);
+		}
+		unit<uint32> adm_1 {
+			attribute<WGS84> Geometry (poly);
+			attribute<string> LabelText:= country; 	attribute<countries> cntr_id:= rlookup(country, countries/LabelText);
+		}
+		unit<uint32> adm_2 {
+			attribute<WGS84> Geometry (poly);
+			attribute<string> LabelText:= country; 	attribute<countries> cntr_id:= rlookup(country, countries/LabelText);
+		}
+		unit<uint32> adm_3 {
+			attribute<WGS84> Geometry (poly);
+			attribute<string> LabelText:= country; 	attribute<countries> cntr_id:= rlookup(country, countries/LabelText);
+		}
+		unit<uint32> adm_4 {
+			attribute<WGS84> Geometry (poly);
+			attribute<string> LabelText:= country; 	attribute<countries> cntr_id:= rlookup(country, countries/LabelText);
+		}
+		unit<uint32> adm_5 {
+			attribute<WGS84> Geometry (poly);
+			attribute<string> LabelText:= country; 	attribute<countries> cntr_id:= rlookup(country, countries/LabelText);
+		}
+	}
+	container famine_data {
+		
+		unit<uint32> fews_zones: storagename = "%ProjDir%/data/admin_units/FEWS_Admin_LZ_v3_mollweide.shp", storagetype = "gdal.vect", storagereadonly = "true" {
+			attribute<w_mw>	   Geometry (poly);
+			attribute<WGS84>   Geometry_LL (poly):= rjoin(admin_code, fews_zones_LL/admin_code, fews_zones_LL/Geometry);
+			attribute<string> LabelText:= admin_name;
+			attribute<string> adm0_name;
+			attribute<countries>	cntr_id:= rlookup(adm0_name, countries/country);
+			attribute<fews_famines> ff_id:= invert(fews_famines/fz_id);
+			attribute<float32>		ipc3plus_percent:= fews_famines/ipc3plus_percent[ff_id];
+			attribute<p5s>		 	p5_class_gen:= classify(ipc3plus_percent, p5s/sc_ipc3plus_pct);
+			attribute<p5s>		 	p5_class_ctr:= fews_famines/country_classification[ff_id];
+		}
+		unit<uint32> fews_zones_LL: storagename = "%ProjDir%/data/admin_units/FEWS_Admin_LZ_v3.shp", storagetype = "gdal.vect", storagereadonly = "true" {
+			attribute<WGS84>   Geometry (poly);
+			attribute<string> admin_name;
+		}
+		unit<uint32> fews_famines: storagename = "%ProjDir%/data/famine_data/fews_frequency_upd_oct23_after2014.csv", storagetype = "gdal.vect", storagereadonly = "true" {
+			attribute<fews_zones> fz_id:= rlookup(uint64(admin_code), uint64(fews_zones/admin_code));
+			attribute<w_mw>		Geometry (poly):= fews_zones/Geometry[fz_id];
+			attribute<countries> 	cntr_id:= fews_zones/cntr_id[fz_id];
+			//attribute<uint32> 		timesteps;
+			attribute<uint32>		ipc_1;
+			attribute<uint32>		ipc_2;
+			attribute<uint32>		ipc_3;
+			attribute<uint32>		ipc_4;
+			attribute<uint32>		ipc_5;
+			attribute<uint32>		ipc_3_plus;
+			attribute<uint32>		nr_ipc:= makedefined(ipc_1,0) + makedefined(ipc_2,0) + makedefined(ipc_3,0) + makedefined(ipc_4,0) + makedefined(ipc_5,0);
+			attribute<float32>		avg_ipc:= float32(makedefined(ipc_1,0) + (2 * makedefined(ipc_2,0)) + (3 * makedefined(ipc_3,0)) + (4 * makedefined(ipc_4,0)) +  (5 * makedefined(ipc_5,0))) / float32(nr_ipc);
+			attribute<float32> 		pop2020:= sum(population_data/observed/ghsl_2020/Pop, target_grid/fews_id);
+			attribute<float32>		region_pop_weight:= MakeDefined(pop2020 / (countries/pop2020 / float32(countries/n_fews))[cntr_id], 1f);
+			attribute<p5s> 			country_classification:= rjoin(id(.), country_classifications/collection/orgid, country_classifications/collection/class);
+			
+			// prob_ipc score not very interesting
+			//attribute<float32>		prob_ipc_score:= float32((3 * ipc_3) + (4 * ipc_4) +  (5 * ipc_5)) / float32(ipc_3 + ipc_4 + ipc_5);
+			//attribute<float32> 		rescaled_prob_ipc_score:= prob_ipc_score / countries/avg_prob_ipc_score[cntr_id];
+			//attribute<bool>			in75th_perc:= prob_ipc_score >= countries/prob_ipc_75th_perc[cntr_id];
+			
+			attribute<float32> 		ipc3plus_percent:= makedefined(float32(ipc_3_plus) / float32(nr_ipc), 0f);
+			attribute<float32> 		below_ipc3plus_percent:= 1f - ipc3plus_percent;
+			attribute<float32> 		w_below_ipc3plus_percent:= region_pop_weight * below_ipc3plus_percent;
+			attribute<float32> 		ipc3plus_exposure:= pop2020 * ipc3plus_percent;
+			attribute<float32> 		ipc3plus_notexposed:= pop2020 * below_ipc3plus_percent;
+			
+			//attribute<float32> sc_ipc3plus_pct:=	ClassifyEqualCount(famine_data/fews_famines/ipc3plus_percent, p5s);
+			
+			container classify_per_country_ipc3plus:= for_each_nedv(fews_covered_countries/ZoneId, 'ClassifyEqualCount((cntr_id = '+string(fews_covered_countries/Nr_Orgentity)+' ? ipc3plus_percent : float32(0 / 0)), p5s)', p5s, float32);
+			container classify_per_country_avgipc:= for_each_nedv(fews_covered_countries/ZoneId, 'ClassifyEqualCount((cntr_id = '+string(fews_covered_countries/Nr_Orgentity)+' ? avg_ipc : float32(0 / 0)), p5s)', p5s, float32);
+			
+			container country_classifications:= for_each_ne(fews_covered_countries/ZoneId, 'fetch_percentiles('+string(fews_covered_countries/Nr_Orgentity)+')') {
+				unit<uint32> collection:= ='union_unit('+AsItemList(fews_covered_countries/ZoneId+'/country_fews')+')' {
+					attribute<fews_famines> orgid:= ='union_data(.,'+AsItemList(fews_covered_countries/ZoneId+'/country_fews/Nr_Orgentity')+')';
+					attribute<p5s> class:= 			='union_data(.,'+AsItemList(fews_covered_countries/ZoneId+'/country_fews/class')+')';
+				}
+			}
+			
+			Template fetch_percentiles {
+				parameter<countries> inCountry;
+				parameter<string> ZoneId:= countries/GID_0[inCountry];
+				parameter<bool> use_ipc3plus:= !(uppercase(ZoneId) = 'YEM' || uppercase(ZoneId) = 'CMR' || uppercase(ZoneId) = 'BFA');
+				
+				unit<uint32> country_fews:= subset(fews_famines/cntr_id = inCountry) {
+					attribute<float32> ipc3plus_percent:= fews_famines/ipc3plus_percent[Nr_Orgentity];
+					attribute<float32> avg_ipc:= fews_famines/avg_ipc[Nr_Orgentity];
+					attribute<p5s> 	class:= = use_ipc3plus ? 'classify(ipc3plus_percent, classify_per_country_ipc3plus/'+ZoneId+')' : 'classify(avg_ipc, classify_per_country_avgipc/'+ZoneId+')';
+				}
+			
+			}
+		}
+		unit<uint32> fews_covered_countries:= subset(pcount(fews_famines/cntr_id) > 0) {
+			attribute<string> 	LabelText:= countries/LabelText[Nr_Orgentity];
+			attribute<string> 	ZoneId:= countries/GID_0[Nr_Orgentity];
+			attribute<float32> 	avg_nr_ipc:= rjoin(Nr_Orgentity, id(Countries), mean(float32(fews_famines/nr_ipc), fews_famines/cntr_id));
+			attribute<float32> 	min_nr_ipc:= rjoin(Nr_Orgentity, id(Countries), min(float32(fews_famines/nr_ipc), fews_famines/cntr_id));
+			attribute<float32> 	max_nr_ipc:= rjoin(Nr_Orgentity, id(Countries), max(float32(fews_famines/nr_ipc), fews_famines/cntr_id));
+		}
+		unit<uint32> severely_food_insecure_default_scenario: storagename = "%ProjDir%/data/famine_data/wb_food_insecurity_national_prevalence_apr23.csv"
+			, storagetype = "gdal.vect", storagereadonly = "true"
+			, descr = "3-year centered averages of the prevalence of severe food insecurity (rate), april 2023, from Andree, B.P.J. (2022). Machine Learning Guided Outlook of Global Food Insecurity Consistent with Macroeconomic Forecasts"		
+			{
+				attribute<countries> cntr_id:= rlookup(GADM_CTR, countries/LabelText);
+				attribute<string> 	LabelText:= GADM_CTR;
+				attribute<float32>  sum_obs_14t21:= add(float32(obs_14t16),float32(obs_15t17),float32(obs_16t18),float32(obs_17t19),float32(obs_18t29),float32(obs_19t21));
+				attribute<float32>  m_obs_14t21:= sum_obs_14t21 / 6f;
+				attribute<float32>  hm_obs_14t21:= 6f / add(1f / float32(obs_14t16),1f / float32(obs_15t17),1f / float32(obs_16t18),1f / float32(obs_17t19),1f / float32(obs_18t29),1f / float32(obs_19t21));
+				attribute<float32>  gm_obs_14t21:= exp(add(log(float32(obs_14t16)),log(float32(obs_15t17)),log(float32(obs_16t18)),log(float32(obs_17t19)),log(float32(obs_18t29)),log(float32(obs_19t21))))^(1f / 6f);
+				
+				
+			}
+			
+		
+	}
+	container overlay_data {
+		unit<wpoint> r2up:= population_data/modelled/r2up;
+		
+		// later extend to automate reading of hazards.
+		unit<uint32> sets: NrOfRows = 5 {
+			attribute<string> nm: ['tot','rur','itm','urb','ls_eq'];//,'crit_tr'];
+			attribute<bool>	  yearspec: [False, False, False, False, False];//, True]; // indicates whether values vary per projected year.
+		}
+		
+		unit<wpoint> grids:= r2up {
+			attribute<float32> tot:= const(1,.,float32);
+			attribute<float32> rur:= float32(load_data/degurba_grid/degurba_id = 0[degurba]);
+			attribute<float32> itm:= float32(load_data/degurba_grid/degurba_id = 1[degurba]);
+			attribute<float32> urb:= float32(load_data/degurba_grid/degurba_id = 2[degurba]);
+			attribute<float32> ls_eq:= float32(hazard_data/LoadHazards/landslides_risk_earthquakes/inFile/critical);
+			
+			container crit_tr:= for_each_nedv(population_data/modelled/Years/Label, const('climate_data/tropical_nights_ec_ssp/shifted/critical',population_data/modelled/Years, string), grids, float32);
+		
+		}	
+		
+		container load_data {
+			unit<wpoint> degurba_grid: storagename = "%ProjDir%/data/degree_of_urbanisation/GHS_SMOD_E2020_GLOBE_R2023A_4326_1000_V1_0_warp_CJC.tif", storagereadonly = "true", storagetype = "gdal.grid", dialogdata = "WGS84" {
+				attribute<int16> GridData;
+				attribute<int16> ReadData (r2up);
+				attribute<degurba> degurba_id (r2up):= classify(ReadData[uint8], degurba/class_start);
+			}
+		}
+	}
+	container population_data {
+		
+		container observed {
+			
+			unit<uint32> WDI_country_population: storagename = "%ProjDir%/data/population/observed/WDI_world_countries_population.csv"
+			, storagetype = "gdal.vect", storagereadonly = "true"
+			, descr = "National population counts in 2010, 2015, 2020, according to the World Development Indicators database (https://databank.worldbank.org/reports.aspx?source=2&series=SP.POP.TOTL&country=#). 
+				Some GID codes adapted manually, and China, Hong Kong and Macao populations added together for China"		
+			{
+				attribute<countries> cntr_id:= rlookup(Country_Code, countries/GID_0);
+				attribute<string> 	LabelText:= Country_Name;
+				attribute<uint32> y2010;
+				attribute<uint32> y2015;
+				attribute<uint32> y2020;
+			}
+			
+			unit<wpoint> ghsl_2020: storagename = "%ProjDir%/data/population/observed/GHS_POP_E2020_GLOBE_R2023A_54009_1000_V1_0.tif", storagereadonly = "true", storagetype = "gdal.grid", dialogdata = "w_mw" {
+				attribute<float32> GridData;
+				attribute<float32> ReadData (target_grid);
+				attribute<float32> Pop  (target_grid):= max_elem(ReadData, 0f);
+			}
+		}
+		// !!!!!!!! need to scale modelled population projections by official UN population estimates (most recent)
+		container modelled {
+			
+			unit<wpoint> r2up:= /population_data/modelled/ModelResults/SSP1_2010/inFile {
+				attribute<sel_countries> scntr_id:= poly2grid(sel_countries/Geometry, .);
+				attribute<regions> 		 reg_id:= poly2grid(regions/Geometry_LL, .);
+			}
+			container ModelResults:= for_each_ne(SSP_x_Years/Label, 'doLoadPopTiffs('+string(id(SSP_x_Years))+')') {
+				container RefYears_per_SSP:= for_each_nedv(SSPs/Label, SSPs/Label+'_2010/inFile/Pop', r2up, float32);
+				container CountrySums_per_SSP:= for_each_nedv(SSPs/Label, 'sum(RefYears_per_SSP/'+SSPs/Label+', r2up/scntr_id)', sel_countries, float32);
+				container CountryModifier:= for_each_nedv(SSPs/Label, 'makedefined(sel_countries/p2010_WDI / CountrySums_per_SSP/'+SSPs/Label+', 1f)', sel_countries, float32);
+			}
+			container RescaledModelResults:= for_each_nedv(SSP_x_Years/Label, 'ModelResults/'+SSP_x_Years/Label+'/inFile/pop * ModelResults/CountryModifier/'+SSPs/Label[SSP_x_Years/nr_1]+'[r2up/scntr_id]', r2up, float32);
+			
+
+			
+			unit<uint32> SSPs: nrofrows = 5 {attribute<string> Label:= 'SSP'+string(id(.)+1);}
+			unit<uint32> Years:= range(uint32, 0, (2100 - 2000) / 10) {attribute<uint32> Year:= 2000 + 10 + (id(.) * 10);attribute<string> Label:= 'y'+string(Year);}
+			unit<uint32> SSP_x_Years:= combine(SSPs, Years) {attribute<string> Label:= SSPs/Label[nr_1]+'_'+string(Years/Year[nr_2]);} // M3var1_SSP1_2010_tpop
+			
+			Template doLoadPopTiffs {
+				parameter<SSP_x_Years> in_sy;
+				
+				unit<wpoint> infile: storagename = "= '%ProjDir%/data/population/TowardsAnUrbanPreview_cal21_PD8048_2UPSD8013_FP05_7318/M3var1_'+SSP_x_Years/Label[in_sy]+'_tpop.tif'", storagereadonly = "True", dialogdata = "WGS84" {
+					attribute<float32> GridData;
+					attribute<float32> ReadData (r2up);
+					attribute<float32> Pop  (r2up):= max_elem(ReadData, 0f);
+				}
+			}
+		}
+	
+	}
+	
+	container climate_data {
+		
+		unit<wpoint> r2up:= population_data/modelled/r2up;
+		
+		unit<wpoint> tropical_nights_ec_ssp: storagename="%ProjDir%/data/climate_projections/copernicus_test/trETCCDI_yr_EC-Earth3_ssp370_r15i1p1f1_no-base_v20200201_2015-2100_v2-0.nc", storagetype = "gdal.grid", storagereadonly = "true", dialogdata = "WGS84" {
+			attribute<float32> GridData;
+			attribute<dpoint>  init_coords:= id(.)[WGS84];
+			attribute<WGS84>   Coords:= pointcol(id(.)[WGS84]) <= 180d ? id(.)[WGS84] : id(.)[WGS84] - point(0d, 360d, WGS84);
+			attribute<float32> ReadData (r2up);
+			
+			parameter<uint16> nx2:= pointcol(upperbound(.) - lowerbound(.)) / 2w;
+			//parameter<uint32> nx2:= pointcol(boundrange(id(.))) / 2;
+			
+			unit<wpoint> shifted:= range(gridset(WGS84, GetProjectionFactor(tropical_nights_ec_ssp), GetProjectionOffset(tropical_nights_ec_ssp) - point(0d, 180d, WGS84), wpoint), lowerbound(tropical_nights_ec_ssp), upperbound(tropical_nights_ec_ssp)) {
+				attribute<..> ref:= pointcol(id(.)) >= nx2 ? point(pointrow(id(.)), pointcol(id(.)) - nx2, ..) : point(pointrow(id(.)), pointcol(id(.)) + nx2, ..);
+				attribute<float32> values:=  GridData[ref];
+				attribute<.>  r2up_rel (r2up):= id(r2up)[.];
+				attribute<float32> values_r2up (r2up):= values[r2up_rel];
+				attribute<float32> critical (r2up):= float32(values_r2up > 180f);
+			}
+		}
+	}
+	container hazard_data {
+		unit<wpoint> r2up:= population_data/modelled/r2up;
+	
+		unit<uint32> hazards: nrofrows = 1 {
+			attribute<string> label: ['landslides_risk_earthquakes'];
+			attribute<string> risk_eval: ['x > 2f && x < 254f'];
+			attribute<string> Descr: ['risks considered medium or higher according to source'];
+		}
+		
+		container LoadHazards:= for_each_ne(hazards/label, 'doLoadHazards('+string(id(hazards))+')');
+		
+		Template doLoadHazards {
+			parameter<hazards> in_hz;
+			
+			unit<wpoint> infile: storagename = "= '%ProjDir%/data/hazards/'+hazards/Label[in_hz]+'.tif'", storagetype = "gdal.grid", storagereadonly = "True", dialogdata = "WGS84" {
+				attribute<float32> GridData;
+				attribute<float32> ReadData (r2up);
+				attribute<float32> x (r2up);
+				attribute<float32> critical  (r2up):= ='float32('+hazards/risk_eval[in_hz] +')';
+			}
+		
+		}
+		
+	}
+	
+	container tabulation: using = "population_data/modelled;overlay_data;" {
+		
+		unit<wpoint> r2up:= overlay_data/r2up;
+		
+		unit<uint32> os_x_year:= combine(Years, sets) {attribute<string> nm:= sets/nm[nr_2]; attribute<uint32> Year:= Years/Year[nr_1];attribute<string> LabelText:= nm+'_'+string(Year);}
+		unit<uint32> SSP_x_os_x_year:= combine(SSPs, os_x_year) {
+			attribute<string> SSP:= SSPs/Label[nr_1]; 
+			attribute<string> os_nm:= os_x_year/nm[nr_2]; 
+			attribute<uint32> Year:= os_x_year/Year[nr_2];
+			attribute<string> cont_ref:= SSP+'_'+string(Year);
+			attribute<string> LabelText:= SSP + '_'+os_nm+'_'+string(Year);
+		}
+		
+		parameter<string> overlays_eval_ctr:= 'float32(union_data(list_results,'+asItemList('results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX')+'))';
+		parameter<string> overlays_eval_reg:= 'float32(union_data(list_results,'+asItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX')+'))';
+		
+		unit<uint32> agg_to_countries:= sel_countries {
+			attribute<string> 	LabelText:= sel_countries/LabelText;
+			attribute<float32> 	avg_prev_14t21:= sel_countries/m_obs_14t21;
+			attribute<p5s>		p5_class:= sel_countries/p5_class;
+			attribute<bool> 	p10th_countries:= p5_class < 2[p5s];
+			attribute<bool> 	p90th_countries:= p5_class > 17[p5s];
+			
+			unit<uint32> list_results:= ='union_unit('+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly')+')' {
+				attribute<string> zoneid:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly/zoneid')+')'; 
+				attribute<string> SSP:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly/SSP')+')'; 
+				attribute<uint32> Year:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly/Year')+')'; 
+				attribute<float32> 	avg_prev_14t21:= rjoin(zoneid, agg_to_countries/LabelText, agg_to_countries/m_obs_14t21);
+				attribute<p5s>		p5_class:= rjoin(zoneid, agg_to_countries/LabelText, agg_to_countries/p5_class);
+				
+				container overlays:= ='for_each_nedv(sets/nm, replace(overlays_eval_ctr, '+quote('XXXX')+', sets/nm), list_results, float32)';
+			}
+		}
+		unit<uint32> agg_to_regions:= regions {
+			attribute<string> 	LabelText:= 'z'+string(regions/admin_code);
+			attribute<float32> 	ipc3plus_percent:= regions/ipc3plus_percent;
+			attribute<p5s>		p5_class:= regions/p5_class_ctr;
+			attribute<bool> 	p10th_regions:= p5_class < 2[p5s];
+			attribute<bool> 	p20th_regions:= p5_class < 4[p5s];
+			attribute<bool> 	p80th_regions:= p5_class > 15[p5s];
+			attribute<bool> 	p90th_regions:= p5_class > 17[p5s];
+			
+			unit<uint32> list_results:= ='union_unit('+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly')+')' {
+				attribute<string> zoneid:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/zoneid')+')'; 
+				attribute<string> SSP:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/SSP')+')'; 
+				attribute<uint32> Year:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/Year')+')'; 
+				attribute<float32> 	ipc3plus_percent:= rjoin(zoneid, agg_to_regions/LabelText, agg_to_regions/ipc3plus_percent);
+				attribute<p5s>		p5_class:= rjoin(zoneid, agg_to_regions/LabelText, agg_to_regions/p5_class);
+				
+				container overlays:= ='for_each_nedv(sets/nm, replace(overlays_eval_reg, '+quote('XXXX')+', sets/nm), list_results, float32)';
+			}
+		}
+		
+		container results_per_popgrid:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(ModelResults/'+SSP_x_Years/Label+')');
+		
+		Template do_tabulate_popresult {
+			container inPop;
+			parameter<string> ssp_x_year:= propvalue(., 'Name');
+			parameter<string> SSP_name:= substr(ssp_x_year, 0, 4);
+			parameter<uint32> Yr:=	uint32(substr(ssp_x_year, 5, 8));
+			
+			container overlays:= for_each_nedv(sets/nm, 'inPop/inFile/Pop * overlay_data/grids/'+overlay_data/sets/nm+(sets/yearspec ? '/y' + string(Yr) : '') , r2up, float32);
+			
+			container country_agg:= for_each_nedva(sets/nm, 'sum(overlays/'+overlay_data/sets/nm+', r2up/scntr_id)', sel_countries, float32, '%LocalDataProjDir%/countries_tabulation/'+ssp_x_year+'.dbf') {attribute<string> zoneid (sel_countries):= sel_countries/Labeltext, storagename = "= '%LocalDataProjDir%/countries_tabulation/'+ssp_x_year+'.dbf'";}
+			container region_agg:= for_each_nedva(sets/nm, 'sum(overlays/'+overlay_data/sets/nm+', r2up/reg_id)', regions, float32, '%LocalDataProjDir%/regions_tabulation/'+ssp_x_year+'.dbf') {attribute<string> zoneid (regions):= 'z'+string(regions/admin_code), storagename = "= '%LocalDataProjDir%/regions_tabulation/'+ssp_x_year+'.dbf'";}
+			
+			unit<uint32> country_agg_readonly: storagename = "= propvalue(country_agg/zoneid, 'storagename')", storagereadonly = "true" {attribute<string> SSP:= const(SSP_name,.,string); attribute<uint32> Year:= const(Yr,.,uint32);}
+			unit<uint32> region_agg_readonly: storagename = "= propvalue(region_agg/zoneid, 'storagename')", storagereadonly = "true"  {attribute<string> SSP:= const(SSP_name,.,string); attribute<uint32> Year:= const(Yr,.,uint32);}
+			
+		}
+		
+		
+	}
+	
+	
+}

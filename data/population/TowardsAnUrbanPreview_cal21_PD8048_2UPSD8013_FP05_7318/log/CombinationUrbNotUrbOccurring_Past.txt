@@ -1,0 +1,12 @@
+
+11/20/21-00:59:41[  1]@@@@@ Logging started for K:/LD/TowardsAnUrbanPreview_cal21/log/CombinationUrbNotUrbOccurring_Past.txt at 11/20/21 - 00:59:41
+11/20/21-00:59:42[  1]Read  fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/20/21-00:59:42[  1]Obsolete function called, use EXEC_EC instead that return an errorcode as parameter<UInt32>
+11/20/21-00:59:42[  1]{ Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Report.dms(35,9): /Past/SSPs/SSPPast/Analysis_UrbNotUrb_Past/UrbanDif1990_2014_steps/export_csv/Result: DataItem<String>
+11/20/21-00:59:42[  1]   exec_ec: C:/windows/system32/cmd.exe /c SubWCRev K:\PD\TowardsAnUrbanPreview_cal21 > K:\PD\TowardsAnUrbanPreview_cal21\SubWCRevData.str
+11/20/21-01:03:34[  1]   K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Report.dms(35,9): /Past/SSPs/SSPPast/Analysis_UrbNotUrb_Past/UrbanDif1990_2014_steps/export_csv/Result: DataItem<String> IS STORED IN K:/LD/TowardsAnUrbanPreview_cal21/results/LatLong_World/analysis_modelled/CombinationUrbNotUrbOccurring_Past.csv
+11/20/21-01:03:34[  1]} Updating::K:\PD\TowardsAnUrbanPreview_cal21\cfg\stam\Report.dms(35,9): /Past/SSPs/SSPPast/Analysis_UrbNotUrb_Past/UrbanDif1990_2014_steps/export_csv/Result: DataItem<String> (232.518 secs)
+11/20/21-01:03:34[  1]{ K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream
+11/20/21-01:03:34[  1]   Write fss(K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318,CacheInfo)
+11/20/21-01:03:34[  1]} K:/LD/TowardsAnUrbanPreview_cal21/CalcCachex64.v7.318::OpenOutStream (0.001 secs)
+11/20/21-01:03:34[  1]@@@@@ Logging ended for K:/LD/TowardsAnUrbanPreview_cal21/log/CombinationUrbNotUrbOccurring_Past.txt at 11/20/21 - 01:03:34
