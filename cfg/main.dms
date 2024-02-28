@@ -196,7 +196,7 @@ container worldbank_tabulation {
 		
 		// later extend to automate reading of hazards.
 		unit<uint32> sets: NrOfRows = 5 {
-			attribute<string> nm: ['tot','rur','itm','urb','ls_eq'];//,'crit_tr'];
+			attribute<string> nm: ['tot','rur','itm','urb','ls_arup'];//,'crit_tr'];
 			attribute<bool>	  yearspec: [False, False, False, False, False];//, True]; // indicates whether values vary per projected year.
 		}
 		
@@ -205,7 +205,7 @@ container worldbank_tabulation {
 			attribute<float32> rur:= float32(load_data/degurba_grid/degurba_id = 0[degurba]);
 			attribute<float32> itm:= float32(load_data/degurba_grid/degurba_id = 1[degurba]);
 			attribute<float32> urb:= float32(load_data/degurba_grid/degurba_id = 2[degurba]);
-			attribute<float32> ls_eq:= float32(hazard_data/LoadHazards/landslides_risk_earthquakes/inFile/critical);
+			attribute<float32> ls_arup:= float32(hazard_data/LoadHazards/hazard__ls_arup_cjc/inFile/critical);
 			
 			container crit_tr:= for_each_nedv(population_data/modelled/Years/Label, const('climate_data/tropical_nights_ec_ssp/shifted/critical',population_data/modelled/Years, string), grids, float32);
 		
@@ -300,7 +300,7 @@ container worldbank_tabulation {
 		unit<wpoint> r2up:= population_data/modelled/r2up;
 	
 		unit<uint32> hazards: nrofrows = 1 {
-			attribute<string> label: ['landslides_risk_earthquakes'];
+			attribute<string> label: ['hazard__ls_arup_cjc'];
 			attribute<string> risk_eval: ['x > 2f && x < 254f'];
 			attribute<string> Descr: ['risks considered medium or higher according to source'];
 		}
@@ -334,8 +334,8 @@ container worldbank_tabulation {
 			attribute<string> LabelText:= SSP + '_'+os_nm+'_'+string(Year);
 		}
 		
-		parameter<string> overlays_eval_ctr:= 'float32(union_data(list_results,'+asItemList('results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX')+'))';
-		parameter<string> overlays_eval_reg:= 'float32(union_data(list_results,'+asItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX')+'))';
+		parameter<string> overlays_eval_ctr:= 'union_data(list_results,'+asItemList('float32(results_per_popgrid/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX)')+')';
+		parameter<string> overlays_eval_reg:= 'union_data(list_results,'+asItemList('float32(results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
 		
 		unit<uint32> agg_to_countries:= sel_countries {
 			attribute<string> 	LabelText:= sel_countries/LabelText;
@@ -369,6 +369,7 @@ container worldbank_tabulation {
 				attribute<uint32> Year:= ='union_data(.,'+AsItemList('results_per_popgrid/'+SSP_x_Years/Label+'/region_agg_readonly/Year')+')'; 
 				attribute<float32> 	ipc3plus_percent:= rjoin(zoneid, agg_to_regions/LabelText, agg_to_regions/ipc3plus_percent);
 				attribute<p5s>		p5_class:= rjoin(zoneid, agg_to_regions/LabelText, agg_to_regions/p5_class);
+				attribute<string> country:= rjoin(zoneid, agg_to_regions/LabelText, agg_to_regions/adm0_name);
 				
 				container overlays:= ='for_each_nedv(sets/nm, replace(overlays_eval_reg, '+quote('XXXX')+', sets/nm), list_results, float32)';
 			}
