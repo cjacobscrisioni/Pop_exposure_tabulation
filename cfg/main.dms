@@ -27,9 +27,9 @@ container worldbank_tabulation {
 	}
 	unit<uint32> regions:= famine_data/fews_zones;
 	
-	unit<uint32> countries:= gadm_adm_zones/adm_0 {
+	unit<uint32> countries:= RegionalUnits/Countries {
 		attribute<famine_data/severely_food_insecure_default_scenario> fi_id:= invert(/famine_data/severely_food_insecure_default_scenario/cntr_id);
-		attribute<string> LabelText:= gadm_adm_zones/adm_0/LabelText;
+		attribute<string> LabelText:= label;
 		attribute<float32> m_obs_14t21:= famine_data/severely_food_insecure_default_scenario/m_obs_14t21[fi_id];
 		attribute<float32> hm_obs_14t21:= famine_data/severely_food_insecure_default_scenario/hm_obs_14t21[fi_id];
 		attribute<float32> gm_obs_14t21:= famine_data/severely_food_insecure_default_scenario/gm_obs_14t21[fi_id];
@@ -72,6 +72,8 @@ container worldbank_tabulation {
 			parameter<float32> LabelWorldSize: 	expr = "float32(10) 	/ float32(3600)",	DialogType = "LabelWorldSize";
 		}
 	}
+	#include<RegionalUnits.dms>
+	
 	container gadm_adm_zones: storagename = "%ProjDir%/data/admin_units/gadm_410-levels.gpkg", storagetype = "gdal.vect", storagereadonly = "true" {
 		unit<uint32> adm_0 {
 			attribute<WGS84> Geometry (poly);
@@ -105,7 +107,7 @@ container worldbank_tabulation {
 			attribute<WGS84>   Geometry_LL (poly):= rjoin(admin_code, fews_zones_LL/admin_code, fews_zones_LL/Geometry);
 			attribute<string> LabelText:= admin_name;
 			attribute<string> adm0_name;
-			attribute<countries>	cntr_id:= rlookup(adm0_name, countries/country);
+			attribute<countries>	cntr_id:= rlookup(adm0_name, countries/label);
 			attribute<fews_famines> ff_id:= invert(fews_famines/fz_id);
 			attribute<float32>		ipc3plus_percent:= fews_famines/ipc3plus_percent[ff_id];
 			attribute<p5s>		 	p5_class_gen:= classify(ipc3plus_percent, p5s/sc_ipc3plus_pct);
@@ -170,7 +172,7 @@ container worldbank_tabulation {
 		}
 		unit<uint32> fews_covered_countries:= subset(pcount(fews_famines/cntr_id) > 0) {
 			attribute<string> 	LabelText:= countries/LabelText[Nr_Orgentity];
-			attribute<string> 	ZoneId:= countries/GID_0[Nr_Orgentity];
+			attribute<string> 	ZoneId:= countries/ZoneId[Nr_Orgentity];
 			attribute<float32> 	avg_nr_ipc:= rjoin(Nr_Orgentity, id(Countries), mean(float32(fews_famines/nr_ipc), fews_famines/cntr_id));
 			attribute<float32> 	min_nr_ipc:= rjoin(Nr_Orgentity, id(Countries), min(float32(fews_famines/nr_ipc), fews_famines/cntr_id));
 			attribute<float32> 	max_nr_ipc:= rjoin(Nr_Orgentity, id(Countries), max(float32(fews_famines/nr_ipc), fews_famines/cntr_id));
@@ -374,7 +376,7 @@ container worldbank_tabulation {
 			}
 		}
 		
-		container results_per_popgrid:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(ModelResults/'+SSP_x_Years/Label+')');
+		container results_per_popgrid:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(RescaledModelResults)');
 		
 		Template do_tabulate_popresult {
 			container inPop;
@@ -382,7 +384,7 @@ container worldbank_tabulation {
 			parameter<string> SSP_name:= substr(ssp_x_year, 0, 4);
 			parameter<uint32> Yr:=	uint32(substr(ssp_x_year, 5, 8));
 			
-			container overlays:= for_each_nedv(sets/nm, 'inPop/inFile/Pop * overlay_data/grids/'+overlay_data/sets/nm+(sets/yearspec ? '/y' + string(Yr) : '') , r2up, float32);
+			container overlays:= for_each_nedv(sets/nm, 'inPop/'+ssp_x_year+' * overlay_data/grids/'+overlay_data/sets/nm+(sets/yearspec ? '/y' + string(Yr) : '') , r2up, float32);
 			
 			container country_agg:= for_each_nedva(sets/nm, 'sum(overlays/'+overlay_data/sets/nm+', r2up/scntr_id)', sel_countries, float32, '%LocalDataProjDir%/countries_tabulation/'+ssp_x_year+'.dbf') {attribute<string> zoneid (sel_countries):= sel_countries/Labeltext, storagename = "= '%LocalDataProjDir%/countries_tabulation/'+ssp_x_year+'.dbf'";}
 			container region_agg:= for_each_nedva(sets/nm, 'sum(overlays/'+overlay_data/sets/nm+', r2up/reg_id)', regions, float32, '%LocalDataProjDir%/regions_tabulation/'+ssp_x_year+'.dbf') {attribute<string> zoneid (regions):= 'z'+string(regions/admin_code), storagename = "= '%LocalDataProjDir%/regions_tabulation/'+ssp_x_year+'.dbf'";}
