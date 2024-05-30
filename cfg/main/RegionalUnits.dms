@@ -122,7 +122,7 @@ container RegionalUnits
 			'CHE',	'Switzerland',	'Europe',
 			'CHL',	'Chile',	'South_America',
 			'CHN',	'China',	'Asia',
-			'CIV',	'Côte dIvoire',	'Africa',
+			'CIV',	'Côte d_Ivoire',	'Africa',
 			'CMR',	'Cameroon',	'Africa',
 			'COD',	'Democratic Republic of the Congo',	'Africa',
 			'COG',	'Republic of the Congo',	'Africa',
