@@ -202,11 +202,18 @@ container worldbank_tabulation {
 				attribute<sel_countries> scntr_id:= poly2grid(sel_countries/Geometry, .);
 				attribute<regions> 		 reg_id:= poly2grid(regions/Geometry_LL, .);
 				attribute<rf10>			 rf10_id:= id(.)[rf10];
+				attribute<rf5>			 rf5_id:= id(.)[rf5];
 			}
 			unit<wpoint> rf10:= range(
 				gridset(WGS84, getProjectionFactor(r2up) * point(10d, 10d, WGS84), getProjectionOffSet(r2up), wpoint),
 				point(uint16(0), uint16(0)),
 				wpoint(boundrange(r2up) / point(uint16(10), uint16(10), wpoint)));
+			
+			unit<wpoint> rf5:= range(
+				gridset(WGS84, getProjectionFactor(r2up) * point(5d, 5d, WGS84), getProjectionOffSet(r2up), wpoint),
+				point(uint16(0), uint16(0)),
+				wpoint(boundrange(r2up) / point(uint16(5), uint16(5), wpoint)));
+			
 			/*unit<wpoint> m1000:
 			Expr  =
 				"range("
@@ -226,11 +233,16 @@ container worldbank_tabulation {
 				container RF10_RefYears:= for_each_nedv(SSPs/Label, 'mean(RefYears_per_SSP/'+SSPs/Label+', r2up/rf10_id)[r2up/rf10_id]', r2up, float32);
 				container RF10_Sums_per_SSP:= for_each_nedv(SSPs/Label, 'sum(RF10_RefYears/'+SSPs/Label+', r2up/scntr_id)', sel_countries, float32);
 				container RF10_Factors:= for_each_nedv(SSP_x_Years/Label, 'sum(ModelResults/'+SSP_x_Years/Label+'/inFile/pop, r2up/scntr_id) / RF10_Sums_per_SSP/'+SSP_x_Years/SSP, sel_countries, float32);
+				container RF5_RefYears:= for_each_nedv(SSPs/Label, 'mean(RefYears_per_SSP/'+SSPs/Label+', r2up/rf5_id)[r2up/rf5_id]', r2up, float32);
+				container RF5_Sums_per_SSP:= for_each_nedv(SSPs/Label, 'sum(RF5_RefYears/'+SSPs/Label+', r2up/scntr_id)', sel_countries, float32);
+				container RF5_Factors:= for_each_nedv(SSP_x_Years/Label, 'sum(ModelResults/'+SSP_x_Years/Label+'/inFile/pop, r2up/scntr_id) / RF5_Sums_per_SSP/'+SSP_x_Years/SSP, sel_countries, float32);
 			}
+			container UrbResults:= for_each_nedv(SSP_x_Years/Label, 'ModelResults/'+SSP_x_Years/Label+'/urb_infile/urb', r2up, float32);
 			container RescaledModelResults:= for_each_nedv(SSP_x_Years/Label, 'ModelResults/'+SSP_x_Years/Label+'/inFile/pop * ModelResults/CountryModifier/'+SSPs/Label[SSP_x_Years/first_rel]+'[r2up/scntr_id]', r2up, float32);
 			container RescaledModelResults_Urb:= for_each_nedv(SSP_x_Years/Label, 'RescaledModelResults/'+SSP_x_Years/Label+' * ModelResults/'+SSP_x_Years/Label+'/urb_infile/urb', r2up, float32);
 			container RescaledModelResults_INFORM_method:= for_each_nedv(SSP_x_Years/Label, 'RescaledModelResults/'+SSP_x_Years/SSP+'_2010 * ModelResults/Inform_Factors/'+SSP_x_Years/Label+'[r2up/scntr_id]', r2up, float32);
 			container RescaledModelResults_km10_grids:= for_each_nedv(SSP_x_Years/Label, 'ModelResults/RF10_RefYears/'+SSP_x_Years/SSP+' * ModelResults/RF10_Factors/'+SSP_x_Years/Label+'[r2up/scntr_id] * ModelResults/CountryModifier/'+SSPs/Label[SSP_x_Years/first_rel]+'[r2up/scntr_id]', r2up, float32);
+			container RescaledModelResults_km5_grids:= for_each_nedv(SSP_x_Years/Label, 'ModelResults/RF5_RefYears/'+SSP_x_Years/SSP+' * ModelResults/RF5_Factors/'+SSP_x_Years/Label+'[r2up/scntr_id] * ModelResults/CountryModifier/'+SSPs/Label[SSP_x_Years/first_rel]+'[r2up/scntr_id]', r2up, float32);
 			container d_Rescaled_INFORM:= for_each_nedva(SSP_x_Years/Label, 'RescaledModelResults_INFORM_method/'+SSP_x_Years/Label+' - RescaledModelResults/'+SSP_x_Years/Label, r2up, float32, '%LocalDataProjDir%/d_2up_inform/'+SSP_x_Years/Label+'.tif');
 			container d_Rescaled_km10:= for_each_nedva(SSP_x_Years/Label, 'RescaledModelResults_km10_grids/'+SSP_x_Years/Label+' - RescaledModelResults/'+SSP_x_Years/Label, r2up, float32, '%LocalDataProjDir%/d_2up_rf10/'+SSP_x_Years/Label+'.tif');
 						
@@ -374,10 +386,17 @@ container worldbank_tabulation {
 		
 		unit<wpoint> r2up:= overlay_data/r2up;
 		
+		container country_hazard_densities_ssp_2010:= for_each_nedva(overlay_data/sets/nm, 'sum(overlay_data/grids/set_grids/SSP2_2010_x_'+overlay_data/sets/nm+', r2up/scntr_id)', sel_countries, float32, '%LocalDataProjDir%/countries_tabulation/country_ssp2_2010_hazard_intensity.dbf') {
+			attribute<uint32> country_size (sel_countries):= pcount(r2up/scntr_id), storagename = "%LocalDataProjDir%/countries_tabulation/country_ssp2_2010_hazard_intensity.dbf";
+			attribute<string> label (sel_countries):= sel_countries/Labeltext, storagename = "%LocalDataProjDir%/countries_tabulation/country_ssp2_2010_hazard_intensity.dbf";
+			attribute<WGS84>  Geometry (sel_countries, poly):= sel_countries/Geometry, storagename = "%LocalDataProjDir%/countries_tabulation/country_ssp2_2010_hazard_intensity.shp";
+		}
 		container gen_results_per_popgrid_tot:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(RescaledModelResults, '+quote('_totpop')+')');
 		container gen_results_per_popgrid_urb:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(RescaledModelResults_Urb, '+quote('_urbpop')+')');
+		container gen_results_per_urbgrid:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(UrbResults, '+quote('_urbsum')+')');
 		container gen_results_per_popgrid_tot_inform:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(RescaledModelResults_INFORM_method, '+quote('_totpop_inform')+')');
 		container gen_results_per_popgrid_tot_rf10:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(RescaledModelResults_km10_grids, '+quote('_totpop_rf10')+')');
+		container gen_results_per_popgrid_tot_rf5:= for_each_ne(SSP_x_Years/Label, 'do_tabulate_popresult(RescaledModelResults_km5_grids, '+quote('_totpop_rf5')+')');
 				
 		parameter<string> overlays_eval_ctr_tot:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX)')+')';
 		parameter<string> overlays_eval_reg_tot:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
@@ -387,6 +406,8 @@ container worldbank_tabulation {
 		parameter<string> overlays_eval_reg_tot_inform:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_inform/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
 		parameter<string> overlays_eval_ctr_tot_rf10:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf10/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX)')+')';
 		parameter<string> overlays_eval_reg_tot_rf10:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf10/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
+		parameter<string> overlays_eval_ctr_tot_rf5:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf5/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX)')+')';
+		parameter<string> overlays_eval_reg_tot_rf5:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf5/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
 		
 		unit<uint32> agg_to_countries:= sel_countries {
 			attribute<string> 	LabelText:= sel_countries/LabelText;
@@ -405,6 +426,7 @@ container worldbank_tabulation {
 				container overlays_tot_2up:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 				container overlays_tot_inform:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot_inform, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 				container overlays_tot_rf10:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot_rf10, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
+				container overlays_tot_rf5:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot_rf5, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 				container overlays_urb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_ctr_urb, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 			}
 		}

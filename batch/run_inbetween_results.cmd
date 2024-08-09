@@ -7,8 +7,10 @@ set results=SSP1_2010 SSP1_2020 SSP1_2030 SSP1_2040 SSP1_2050 SSP1_2060 SSP1_207
 for %%r in (%results%) do (
 	rem C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_tot/%%r/country_agg /tabulation/gen_results_per_popgrid_tot/%%r/region_agg
 	rem C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_urb/%%r/country_agg /tabulation/gen_results_per_popgrid_urb/%%r/region_agg
-	C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_tot_inform/%%r/country_agg /tabulation/gen_results_per_popgrid_tot_inform/%%r/region_agg
-	C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_tot_rf10/%%r/country_agg /tabulation/gen_results_per_popgrid_tot_rf10/%%r/region_agg
+	rem C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_tot_inform/%%r/country_agg /tabulation/gen_results_per_popgrid_tot_inform/%%r/region_agg
+	rem C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_tot_rf10/%%r/country_agg /tabulation/gen_results_per_popgrid_tot_rf10/%%r/region_agg
+	rem C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_popgrid_tot_rf5/%%r/country_agg /tabulation/gen_results_per_popgrid_tot_rf5/%%r/region_agg
+	C:\%pf%\ObjectVision\%geodmsversion%\GeoDmsRun.exe %config%\main.dms /tabulation/gen_results_per_urbgrid/%%r/country_agg /tabulation/gen_results_per_urbgrid/%%r/region_agg
 )
 
 pause
