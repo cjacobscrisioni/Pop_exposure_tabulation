@@ -1,0 +1,16 @@
+Data descriptions, population exposure project
+Chris Jacobs-Crisioni, 28/2/2025
+
+tot_pop_2up.csv
+Contains raw outputs from tabulation exercise, with every row representing a country result, given a specific SSP. Additional fields indicate exposure to hazard types and classes. Version reference: August 2024.
+
+countries_pop_fig2.csv
+Contains edited outputs taken from tot_pop_2up.csv. Rows indicate changes in result between reference year (2010) and projected year (2100), with fields indicating total population change as well as change in population exposed to specific hazard types and classes. Version reference: October 2024.
+
+countries_urb_fig2.csv
+Contains edited outputs taken from tabulation exercise. Rows indicate changes in result between reference year (2010) and projected year (2100), with fields indicating total urban expansion as well as urban expansion exposed to specific hazard types and classes. Version reference: May 2024.
+
+flood_depth_change.csv
+Contains a further aggregation from the tabulation exercise. Rows indicate a combination of SSP scenario and a dummy indicating whether flooding is expected to be up to 1m high, or higher. The otehr columns indicate the relative change in exposed population per World Bank region
+
+

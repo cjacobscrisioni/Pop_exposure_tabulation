@@ -408,6 +408,8 @@ container worldbank_tabulation {
 		parameter<string> overlays_eval_reg_tot_rf10:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf10/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
 		parameter<string> overlays_eval_ctr_tot_rf5:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf5/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX)')+')';
 		parameter<string> overlays_eval_reg_tot_rf5:= 'union_data(list_results,'+asItemList('float32(gen_results_per_popgrid_tot_rf5/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
+		parameter<string> overlays_eval_ctr_urbsum:= 'union_data(list_results,'+asItemList('float32(gen_results_per_urbgrid/'+SSP_x_Years/Label+'/country_agg_readonly/XXXX)')+')';
+		parameter<string> overlays_eval_reg_urbsum:= 'union_data(list_results,'+asItemList('float32(gen_results_per_urbgrid/'+SSP_x_Years/Label+'/region_agg_readonly/XXXX)')+')';
 		
 		unit<uint32> agg_to_countries:= sel_countries {
 			attribute<string> 	LabelText:= sel_countries/LabelText;
@@ -427,7 +429,8 @@ container worldbank_tabulation {
 				container overlays_tot_inform:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot_inform, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 				container overlays_tot_rf10:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot_rf10, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 				container overlays_tot_rf5:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_ctr_tot_rf5, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
-				container overlays_urb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_ctr_urb, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
+				container overlays_popurb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_ctr_urb, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
+				container overlays_urb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_ctr_urbsum, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 			}
 		}
 		unit<uint32> agg_to_regions:= regions {
@@ -447,7 +450,8 @@ container worldbank_tabulation {
 				attribute<p5s>		p5_class:= rjoin(zoneid, agg_to_regions/LabelText, agg_to_regions/p5_class);
 				
 				container overlays_tot:= ='for_each_nedv('+quote('tot_')+'+ sets/nm, replace(overlays_eval_reg_tot, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
-				container overlays_urb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_reg_urb, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
+				container overlays_popurb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_reg_urb, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
+				container overlays_urb:= ='for_each_nedv('+quote('urb_')+'+ sets/nm, replace(overlays_eval_reg_urbsum, '+quote('XXXX')+', sets/trunc_nm), list_results, float32)';
 			}
 		}
 		
